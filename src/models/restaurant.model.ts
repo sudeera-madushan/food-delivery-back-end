@@ -5,21 +5,30 @@
  */
 import {Document, Schema, model, ObjectId} from "mongoose";
 
-interface IRestaurant extends Document{
-    name: string,
-    address: string,
-    location: string,
-    description: string,
+export interface IRestaurant extends Document{
+    restaurantName:string,
+    ownerNIC:string,
+    ownerFullName:string,
+    username:string,
+    email:string,
+    mobile:number,
+    password:string,
+    location:{ latitude: number; longitude: number },
+    address:string
 }
-
 const restaurantSchema = new Schema<IRestaurant>({
-    name : {type: String, required: true},
-    address : {type: String, required: true},
-    location : {type: String, required: true},
-    description: {type: String, required: true}
+    restaurantName: {type: String, required: true},
+    ownerNIC: {type: String, required: true},
+    ownerFullName: {type: String, required: true},
+    username: {type: String, required: true},
+    email: {type: String, required: true},
+    mobile: {type: Number, required: true},
+    password: {type: String, required: true},
+    location: {type: { latitude: Number, longitude: Number }, required:true},
+    address: {type: String, required: true},
 })
 
-const MenuModel = model("Restaurant", restaurantSchema);
+const RestaurantModel = model("Restaurant", restaurantSchema);
 
-export default MenuModel;
+export default RestaurantModel;
 

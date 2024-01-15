@@ -5,18 +5,26 @@
  */
 import {Document, Schema, model, ObjectId} from "mongoose";
 
-interface IMenu extends Document{
-    name: string,
-    description: string,
+export interface IMenu extends Document{
     image: string,
+    foodName: string,
+    description: string,
+    price: number,
+    openTime: string,
+    closeTime: string,
+    size: string[] | null,
     restaurant: ObjectId
 }
 
 const menuSchema = new Schema<IMenu>({
-    name : {type: String, required: true},
-    description: {type: String, required: true},
-    image: {type: String, required: true},
-    restaurant: {type: Schema.Types.ObjectId , required: true, ref: "Restaurant"}
+    image : {type: String, required: true},
+    foodName : {type: String, required: true},
+    description : {type: String, required: true},
+    price : {type: Number, required: true},
+    openTime : {type: String, required: true},
+    closeTime : {type: String, required: true},
+    size: {type:[], required: false},
+    restaurant : {type: Schema.Types.ObjectId , required: false, ref: "Restaurant"}
 })
 
 const MenuModel = model("Menu", menuSchema);

@@ -10,6 +10,7 @@ import process from "process";
 import cors from "cors";
 import MenuRoutes from "./routes/menu.routes"
 import UserRoutes from "./routes/user.routes"
+import RestaurantRoutes from "./routes/restaurant.routes"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -20,7 +21,7 @@ const app:Express = express();
 mongoose.connect(MONGO_URL as string);
 
 const db:mongoose.Connection = mongoose.connection;
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 
 app.use(cors ({ origin: "*" }))
 
@@ -38,4 +39,10 @@ db.on('open',():void => {
 
 app.use('/api/v1/menu', MenuRoutes)
 
-app.get("/api/v1/user", UserRoutes)
+app.use("/api/v1/user", UserRoutes)
+
+app.use("/api/v1/restaurant", RestaurantRoutes)
+
+// app.post("/api/v1/*" , (req, res) => {
+//     console.log(req)
+// })
