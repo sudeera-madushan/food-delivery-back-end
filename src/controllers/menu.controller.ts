@@ -10,7 +10,7 @@ import {ObjectId} from "mongodb";
 
 export const saveMenu = async (req: express.Request, res: any) => {
     try {
-        let user_id = res.tokenData.user._id;
+        let user_id = res.tokenData.restaurant._id;
         const menu = req.body;
         const menuModel: IMenu = new MenuModel({
             image: menu.image,
@@ -20,6 +20,7 @@ export const saveMenu = async (req: express.Request, res: any) => {
             openTime: menu.openTime,
             closeTime: menu.closeTime,
             size:menu.size,
+            isActive:menu.isActive,
             restaurant: new ObjectId(user_id)
         })
         await menuModel.save().then(r => {
@@ -32,6 +33,7 @@ export const saveMenu = async (req: express.Request, res: any) => {
         res.status(100).send(`Error ${error}`);
     }
 }
+
 export const updateMenu = async (req: express.Request, res: express.Response) => {
     try {
         const menu = req.body;
@@ -46,7 +48,8 @@ export const updateMenu = async (req: express.Request, res: express.Response) =>
                     price: menu.price,
                     openTime: menu.openTime,
                     closeTime: menu.closeTime,
-                    size:menu.size
+                    size:menu.size,
+                    isActive:menu.isActive
             })
                 .then(r => {
 
@@ -66,24 +69,60 @@ export const updateMenu = async (req: express.Request, res: express.Response) =>
                 new CustomResponse(401, "Access denied")
             )
         }
-
-        // const menuModel: IMenu = new MenuModel({
-        //     image: menu.image,
-        //     foodName: menu.foodName,
-        //     description: menu.description,
-        //     price: menu.price,
-        //     openTime: menu.openTime,
-        //     closeTime: menu.closeTime,
-        //     size:menu.size
-        //
-        // })
-        // await menuModel.save().then(r => {
-        //     res.status(200).send("Menu create successfully !");
-        // }).catch(error => {
-        //     console.log(error)
-        //     res.status(100).send(`Error ${error}`);
-        // })
     }catch (error) {
+        res.status(100).send(`Error ${error}`);
+    }
+}
+
+export const updateActive = async (req: express.Request, res: express.Response) => {
+    try {
+        const menu = req.body;
+        console.log(menu.isActive)
+        let find = await MenuModel.find({_id: menu._id })
+        console.log(find)
+        if(find) {
+            // find.isActive=menu.isActive;
+            await MenuModel.findOneAndUpdate(
+                { _id: menu._id },
+                { isActive: menu.isActive }
+            )
+                .then(r => {
+                    res.status(200).send(
+                        new CustomResponse(100, "Menu updated successfully.")
+                    );
+                })
+                .catch(error => {
+                    console.log(error);
+                    res.status(500).send(
+                        new CustomResponse(100, "Something went wrong.")
+                    );
+                });
+        } else {
+            res.status(401).send(
+                new CustomResponse(401, "Access denied")
+            )
+        }
+    }catch (error) {
+        res.status(100).send(`Error ${error}`);
+    }
+}
+
+export const getAllMyMenu = async (req:express.Request, res:any) => {
+    try {
+        let user_id = res.tokenData.restaurant._id;
+        let size = 10;
+        let menus = await MenuModel.find({restaurant:user_id}).limit(size).skip(10 * (1 - 1));
+        let count = await MenuModel.countDocuments();
+        let pages = Math.ceil(count / size);
+
+        res.status(200).send(
+            new CustomResponse(
+                200,
+                "Get all menus successfully !",
+                menus,
+                pages)
+        );
+    } catch (error) {
         res.status(100).send(`Error ${error}`);
     }
 }
@@ -91,9 +130,8 @@ export const updateMenu = async (req: express.Request, res: express.Response) =>
 export const getAllMenu = async (req:express.Request, res:any) => {
     try {
         let user_id = res.tokenData.user._id;
-
         let size = 10;
-        let menus = await MenuModel.find({restaurant:user_id}).limit(size).skip(10 * (1 - 1));
+        let menus = await MenuModel.find().limit(size).skip(10 * (1 - 1));
         let count = await MenuModel.countDocuments();
         let pages = Math.ceil(count / size);
 

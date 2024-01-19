@@ -9,6 +9,75 @@ import CustomResponse from "../dtos/custome.response";
 import RestaurantModel, {IRestaurant} from "../models/restaurant.model";
 import process from "process";
 import jwt, {Secret} from "jsonwebtoken";
+import UserModel from "../models/user.model";
+import {getDistancesFromOrigin, Location} from "../util/distance"
+import MenuModel from "../models/menu.model";
+
+const getNearRestaurants =  (async (loc: Location): Promise<IRestaurant[]>=> {
+    let restaurants: IRestaurant[] = await RestaurantModel.find();
+    let body: IRestaurant[] = [];
+
+
+    const originLocation: Location = {latitude: loc.latitude, longitude: loc.longitude};
+    let destinationLocations: Location[] = [];
+
+    restaurants.map((r, i) => {
+        destinationLocations.push({
+            latitude: r.location.latitude, longitude: r.location.longitude
+        })
+    })
+    if (destinationLocations.length > 0) {
+        let distances: number[] = [];
+        await getDistancesFromOrigin(originLocation, destinationLocations)
+            .then((d) => {
+                distances = d;
+                // console.log('Distances from origin to destinations:', distances.map((distance, index) => `Location ${index + 2}: ${distance} km`));
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+
+        distances.map((value, index) => {
+            if (value < 11) {
+                body.unshift(restaurants[index])
+            }
+        })
+        return body;
+    }
+    return [];
+})
+
+export const getAllRestaurantWithMenu = async (req: express.Request, res:any) => {
+    try {
+        let user_id = res.tokenData.user._id;
+
+        let user = await UserModel.findOne({_id:user_id});
+
+        if (user){
+            if (user.location) {
+                let restaurants = await getNearRestaurants(user.location)
+                let body:any = []
+
+                for (let i = 0; i < restaurants.length; i++) {
+                    body.unshift(
+                        {
+                            restaurant: restaurants[i],
+                            menus: await MenuModel.find({restaurant: restaurants[i]._id})
+                        })
+                }
+                res.status(200).send(
+                    new CustomResponse(
+                        200,
+                        "Get all restaurant successfully !",
+                        body)
+                );
+            }
+        }
+    }catch (error) {
+        res.status(100).send(`Error ${error}`);
+    }
+}
+
 
 export const saveRestaurant = async (req: express.Request, res: express.Response) => {
     try {
@@ -50,21 +119,21 @@ export const authRestaurant = async (req: express.Request, res: express.Response
     try {
 
         let request_body = req.body
-        let restaurant: IRestaurant | null = await RestaurantModel.findOne({username: request_body.username});
-        if(restaurant) {
+        let find: IRestaurant | null = await RestaurantModel.findOne({username: request_body.username});
+        if(find) {
 
-            let isMatch = await bcrypt.compare(request_body.password, restaurant.password)
+            let isMatch = await bcrypt.compare(request_body.password, find.password)
 
             if(isMatch) {
 
-                let user = {
-                    _id:restaurant._id,
-                    username:restaurant.username,
+                let restaurant = {
+                    _id:find._id,
+                    username:find.username,
                 }
 
                 const expiresIn = '1w';
 
-                jwt.sign({user}, process.env.SECRET as Secret, {expiresIn}, (err: any, token: any) => {
+                jwt.sign({restaurant}, process.env.SECRET as Secret, {expiresIn}, (err: any, token: any) => {
 
                     if(err) {
                         res.status(100).send(
@@ -73,7 +142,7 @@ export const authRestaurant = async (req: express.Request, res: express.Response
                     } else {
 
                         let res_body = {
-                            restaurant: user,
+                            restaurant: restaurant,
                             accessToken: token
                         }
 
@@ -98,3 +167,4 @@ export const authRestaurant = async (req: express.Request, res: express.Response
         res.status(100).send("Error");
     }
 }
+

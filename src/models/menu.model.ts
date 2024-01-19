@@ -13,6 +13,7 @@ export interface IMenu extends Document{
     openTime: string,
     closeTime: string,
     size: string[] | null,
+    isActive: boolean,
     restaurant: ObjectId
 }
 
@@ -24,6 +25,7 @@ const menuSchema = new Schema<IMenu>({
     openTime : {type: String, required: true},
     closeTime : {type: String, required: true},
     size: {type:[], required: false},
+    isActive : {type: "Boolean", required: true},
     restaurant : {type: Schema.Types.ObjectId , required: false, ref: "Restaurant"}
 })
 

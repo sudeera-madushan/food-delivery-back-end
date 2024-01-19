@@ -6,6 +6,7 @@
 import {Document, Schema, model, ObjectId} from "mongoose";
 
 export interface IRestaurant extends Document{
+    _id?: ObjectId
     restaurantName:string,
     ownerNIC:string,
     ownerFullName:string,

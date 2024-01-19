@@ -14,6 +14,11 @@ const router = express.Router();
 router.post("/save", Middleware.verifyToken, MenuController.saveMenu)
 
 /**
+ * get all my-menu
+ */
+router.get("/my-menus", Middleware.verifyToken, MenuController.getAllMyMenu)
+
+/**
  * get all menu
  */
 router.get("/all", Middleware.verifyToken, MenuController.getAllMenu)
@@ -22,5 +27,10 @@ router.get("/all", Middleware.verifyToken, MenuController.getAllMenu)
  * update menu
  */
 router.put("/update", MenuController.updateMenu)
+
+/**
+ * update menu active
+ */
+router.patch("/active", MenuController.updateActive)
 
 export default router;
