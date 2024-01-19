@@ -10,6 +10,54 @@ import bcrypt from "bcryptjs";
 import process from "process";
 import RestaurantModel, {IRestaurant} from "../models/restaurant.model";
 import UserModel, {IUser} from "../models/user.model";
+import {getDistancesFromOrigin} from "../util/distance";
+
+export const getDistance = async (req:express.Request, res:any) => {
+    console.log(req.query);
+    const data = res.tokenData;
+    let find: IUser | null = await RestaurantModel.findOne({_id: req.query.restaurant});
+
+
+
+    if (find && find.location ) {
+        let latitude = parseInt(req.query.latitude as string);
+        let longitude = parseInt(req.query.longitude as string);
+        await getDistancesFromOrigin(
+            {latitude: find.location.latitude, longitude: find.location.longitude},
+            [{latitude: latitude, longitude: longitude}])
+            .then((d) => {
+                res.status(200).send(
+                    new CustomResponse(200, "Access", d[0])
+                );
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.status(100).send(
+                    new CustomResponse(100, "Something went wrong")
+                );
+            });
+    }
+};
+
+
+export const getUserLocation = async (req:express.Request, res:any) => {
+    try {
+        let data = res.tokenData
+        let find: IUser | null = await UserModel.findOne({username: data.user.username});
+        if (find) {
+            res.status(200).send(
+                new CustomResponse(200, "Access", find.address)
+            );
+        } else {
+            res.status(100).send(
+                new CustomResponse(100, "Something went wrong")
+            );
+        }
+    }catch (e) {
+        console.log(e)
+    }
+};
+
 const {SECRET } = process.env;
 export const userAuth = async (req:express.Request, res:any) => {
     res.status(200).send(

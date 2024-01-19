@@ -14,5 +14,7 @@ const router = express.Router();
 router.post("/sign-in", UserController.userSignIn)
 router.post("/sign-up", UserController.saveUser)
 router.post("/auth", Middleware.verifyToken, UserController.userAuth)
+router.get("/location", Middleware.verifyToken, UserController.getUserLocation)
+router.get("/distance", Middleware.verifyToken, UserController.getDistance)
 
 export default router;
