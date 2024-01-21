@@ -13,19 +13,20 @@ import UserModel, {IUser} from "../models/user.model";
 import {getDistancesFromOrigin} from "../util/distance";
 
 export const getDistance = async (req:express.Request, res:any) => {
-    console.log(req.query);
+
     const data = res.tokenData;
     let find: IUser | null = await RestaurantModel.findOne({_id: req.query.restaurant});
 
 
 
     if (find && find.location ) {
-        let latitude = parseInt(req.query.latitude as string);
-        let longitude = parseInt(req.query.longitude as string);
+        let latitude = parseFloat(req.query.latitude as string);
+        let longitude = parseFloat(req.query.longitude as string);
         await getDistancesFromOrigin(
             {latitude: find.location.latitude, longitude: find.location.longitude},
             [{latitude: latitude, longitude: longitude}])
             .then((d) => {
+                console.log(d);
                 res.status(200).send(
                     new CustomResponse(200, "Access", d[0])
                 );
