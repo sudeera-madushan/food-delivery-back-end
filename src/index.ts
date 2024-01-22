@@ -11,6 +11,7 @@ import cors from "cors";
 import MenuRoutes from "./routes/menu.routes"
 import UserRoutes from "./routes/user.routes"
 import RestaurantRoutes from "./routes/restaurant.routes"
+import OrderRoutes from "./routes/order.routes"
 import dotenv from "dotenv"
 
 dotenv.config()
@@ -40,6 +41,7 @@ db.on('open',():void => {
 app.use('/api/v1/menu', MenuRoutes)
 
 app.use("/api/v1/user", UserRoutes)
+app.use("/api/v1/order", OrderRoutes)
 
 app.use("/api/v1/restaurant", RestaurantRoutes)
 
