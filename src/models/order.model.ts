@@ -8,9 +8,10 @@ import {Document, Schema, model, ObjectId} from "mongoose";
 export enum OrderStates {
     ORDERED = 'ORDERED',
     CONFIRMED = 'CONFIRMED',
-    PREPARING = 'PREPARING',
+    PREPARED = 'PREPARED',
     DELIVER = 'DELIVER',
     COMPLETE = 'COMPLETE',
+    CANCELED = 'CANCELED'
 }
 
 export interface IOrder extends Document{
@@ -24,6 +25,7 @@ export interface IOrder extends Document{
     deliveryCost: number,
     taxCost: number,
     toPayCost: number,
+    ordered:Date,
     states: OrderStates
 }
 const orderSchema = new Schema<IOrder>(
@@ -47,6 +49,7 @@ const orderSchema = new Schema<IOrder>(
         deliveryCost: { type: Number, required: true },
         taxCost: { type: Number, required: true },
         toPayCost: { type: Number, required: true },
+        ordered: {type: "Date", required:true},
         states: {
             type: String,
             enum: Object.values(OrderStates),

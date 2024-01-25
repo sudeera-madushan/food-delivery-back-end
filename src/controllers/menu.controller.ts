@@ -53,7 +53,6 @@ export const updateMenu = async (req: express.Request, res: express.Response) =>
             })
                 .then(r => {
 
-                    console.log(MenuModel.find({_id: menu.id }))
                     res.status(200).send(
                         new CustomResponse(100, "Menu updated successfully.")
                     )
@@ -79,9 +78,7 @@ export const updateActive = async (req: express.Request, res: express.Response) 
         const menu = req.body;
         console.log(menu.isActive)
         let find = await MenuModel.find({_id: menu._id })
-        console.log(find)
         if(find) {
-            // find.isActive=menu.isActive;
             await MenuModel.findOneAndUpdate(
                 { _id: menu._id },
                 { isActive: menu.isActive }

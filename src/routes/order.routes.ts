@@ -10,5 +10,10 @@ const router = express.Router();
 
 
 router.post("/save", Middleware.verifyToken, OrderController.saveOrder)
+router.get("/all", Middleware.verifyToken, OrderController.getUserOrders)
+router.get("/my-all", Middleware.verifyToken, OrderController.getOrdersByRestaurant)
+router.post("/conform", Middleware.verifyToken, OrderController.conformOrder)
+router.post("/cooked", Middleware.verifyToken, OrderController.cookedOrder)
+router.post("/complete", Middleware.verifyToken, OrderController.completeOrder)
 
 export default router;
