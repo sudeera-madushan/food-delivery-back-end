@@ -11,6 +11,7 @@ import process from "process";
 import RestaurantModel, {IRestaurant} from "../models/restaurant.model";
 import UserModel, {IUser} from "../models/user.model";
 import {getDistancesFromOrigin} from "../util/distance";
+import trycatch from "../util/trycatch";
 
 export const getDistance = async (req:express.Request, res:any) => {
 
@@ -60,16 +61,14 @@ export const getUserLocation = async (req:express.Request, res:any) => {
 };
 
 const {SECRET } = process.env;
-export const userAuth = async (req:express.Request, res:any) => {
+export const userAuth = trycatch(async (req:express.Request, res:any) => {
     res.status(200).send(
         new CustomResponse(
             200,
             "Login success",
             res.tokenData));
-}
-export const userSignIn = async (req: express.Request, res: express.Response) => {
-    try {
-
+})
+export const userSignIn = trycatch(async (req: express.Request, res: express.Response) => {
         let request_body = req.body
         let find: IUser | null = await UserModel.findOne({username: request_body.username});
         if(find) {
@@ -157,12 +156,8 @@ export const userSignIn = async (req: express.Request, res: express.Response) =>
                 );
             }
         }
-
-    } catch (error) {
-        res.status(100).send("Error");
-    }
 }
-
+)
 export const saveUser = async (req: express.Request, res: express.Response) => {
     try {
         const rest = req.body;
