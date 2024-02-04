@@ -12,6 +12,7 @@ import RestaurantModel, {IRestaurant} from "../models/restaurant.model";
 import UserModel, {IUser} from "../models/user.model";
 import {getDistancesFromOrigin} from "../util/distance";
 import trycatch from "../util/trycatch";
+import {emitWebSocket, globalSocket, io} from "../index";
 
 export const getDistance = async (req:express.Request, res:any) => {
 

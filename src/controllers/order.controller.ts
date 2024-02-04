@@ -5,6 +5,7 @@ import menuModel, {IMenu} from "../models/menu.model";
 import {ObjectId} from "mongoose";
 import RestaurantModel from "../models/restaurant.model";
 import MenuModel from "../models/menu.model";
+import {emitWebSocket, io} from "../index";
 
 /**
  * author : Sudeera Madushan
@@ -176,7 +177,8 @@ export const saveOrder = async (req: express.Request, res: any) => {
             ordered: body.ordered,
             states: OrderStates.ORDERED
         });
-        await orderModel.save().then(r => {
+        await orderModel.save().then(r => { 
+            emitWebSocket('newOrderToRestaurant',body.restaurant)
             res.status(200).send("Order create successfully !");
         }).catch(error => {
             console.log(error);
