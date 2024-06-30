@@ -22,6 +22,10 @@ const {MONGO_URL } = process.env;
 
 export const app:Express = express();
 const server = createServer(app);
+
+/**
+ * Web Socket
+ */
 export const io =  new Server(server, {
     cors: {
         origin: "*",
@@ -31,17 +35,6 @@ export const io =  new Server(server, {
 
 export const connectedUsers: { [userId: string]: string } = {};
 export let globalSocket: Socket | null = null;
-
-export const emitWebSocket = (event : string ,userId:string) => {
-    if (globalSocket) {
-        const userSocketId = connectedUsers[userId];
-        if (userSocketId) {
-            io.to(userSocketId).emit(event, userId);
-        } else {
-            console.log(`User ${userId} is not connected`);
-        }
-    }
-}
 
  io.on('connection', (socket) => {
     console.log('a user connected');
@@ -62,7 +55,9 @@ export const emitWebSocket = (event : string ,userId:string) => {
 });
 
 
-
+/**
+ * Start Server
+ */
 server.listen(8080, ():void => {
     console.log("Server started from port 8080 !")
 });

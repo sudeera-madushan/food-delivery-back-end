@@ -5,7 +5,7 @@ import menuModel, {IMenu} from "../models/menu.model";
 import {ObjectId} from "mongoose";
 import RestaurantModel from "../models/restaurant.model";
 import MenuModel from "../models/menu.model";
-import {emitWebSocket, io} from "../index";
+import {emitWebSocket} from "../webSocket/webSocket";
 
 /**
  * author : Sudeera Madushan
@@ -113,8 +113,8 @@ export const conformOrder = async (req: express.Request, res: any) => {
 
         find.states = OrderStates.CONFIRMED;
         await find.save();
-
         res.status(200).send(new CustomResponse(100, "Order confirmed successfully."));
+        emitWebSocket('conformOrderToRestaurant',find.user.toString(), OrderStates.CONFIRMED.toString())
     } catch (error) {
         console.log(error);
         res.status(500).send(new CustomResponse(500, "Something went wrong."));
@@ -133,6 +133,7 @@ export const cookedOrder = async (req: express.Request, res: any) => {
         find.states = OrderStates.PREPARED;
         await find.save();
 
+        emitWebSocket('conformOrderToRestaurant',find.user.toString(), OrderStates.PREPARED.toString())
         res.status(200).send(new CustomResponse(100, "Order prepared successfully."));
     } catch (error) {
         console.log(error);
@@ -153,6 +154,7 @@ export const completeOrder = async (req: express.Request, res: any) => {
         console.log(find)
         await find.save();
 
+        emitWebSocket('conformOrderToRestaurant',find.user.toString(), OrderStates.COMPLETE.toString())
         res.status(200).send(new CustomResponse(100, "Order complete successfully."));
     } catch (error) {
         console.log(error);
@@ -177,8 +179,8 @@ export const saveOrder = async (req: express.Request, res: any) => {
             ordered: body.ordered,
             states: OrderStates.ORDERED
         });
-        await orderModel.save().then(r => { 
-            emitWebSocket('newOrderToRestaurant',body.restaurant)
+        await orderModel.save().then(r => {
+            emitWebSocket('newOrderToRestaurant',body.restaurant, "You Got New Order !")
             res.status(200).send("Order create successfully !");
         }).catch(error => {
             console.log(error);
